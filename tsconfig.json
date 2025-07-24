@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    // 모듈 해석 방식 (Node.js의 모듈 해석 알고리즘 사용)
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    // CommonJS 모듈을 ES6 모듈처럼 import할 수 있게 함
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    // JSON 파일을 모듈로 import 가능하게 함
+    "resolveJsonModule": true,
+    // .ts 확장자를 포함한 import 허용
+    "allowImportingTsExtensions": true,
+    // JavaScript 파일 생성하지 않음 (타입 체크만 수행)
+    "noEmit": true
+  },
+  // ts-node 실행 시 설정
+  "ts-node": {
+    // ES 모듈 사용
+    "esm": true,
+    // Node.js의 모듈 해석 방식 사용
+    "experimentalSpecifierResolution": "node"
+  },
+  // 컴파일할 파일 패턴 (모든 .ts 파일 포함)
+  "include": ["**/*.ts"],
+  // 컴파일에서 제외할 디렉토리
+  "exclude": ["node_modules", "dist"]
+}
