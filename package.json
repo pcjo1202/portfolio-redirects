@@ -5,16 +5,19 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --outDir dist --rootDir .",
     "start": "node dist/index.js",
-    "dev": "ts-node index.ts"
+    "dev": "tsx index.ts",
+    "prod": "pnpm build && node dist/index.js",
+    "generate": "tsx index.ts",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "yaml": "^2.8.0"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.8.3"
   },
   "engines": {
