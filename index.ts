@@ -1,7 +1,7 @@
 import fs from "fs";
 
-import { parseYamlFile } from "./lib/parse-yaml-file.ts";
-import { nginxConfig } from "./script/nginx-config.ts";
+import { parseYamlFile } from "./lib/parse-yaml-file";
+import { nginxConfig } from "./script/nginx-config";
 
 function generateNginxConfig() {
   try {

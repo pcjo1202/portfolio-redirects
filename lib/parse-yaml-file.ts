@@ -1,6 +1,6 @@
 import fs from "fs";
 import YAML from "yaml";
-import type { RedirectLinkData } from "../types/redirect-link.type.ts";
+import type { RedirectLinkData } from "../types/redirect-link.type";
 
 export const parseYamlFile = (filePath: string) => {
   const yamlFile = fs.readFileSync(filePath, "utf-8");
