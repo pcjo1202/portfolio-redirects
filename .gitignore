@@ -68,6 +68,7 @@ Thumbs.db
 
 # 빌드 결과물
 nginx.conf
+dist/
 
 # 임시 파일
 tmp/

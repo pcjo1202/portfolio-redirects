@@ -1,0 +1,48 @@
+# Git 관련
+.git
+.gitignore
+
+# Node.js 관련
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 개발 환경
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 로그 파일
+logs
+*.log
+
+# 에디터/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 관련
+.DS_Store
+Thumbs.db
+
+# 문서 및 테스트
+README.md
+*.md
+test/
+tests/
+__tests__/
+
+# CI/CD
+.github/
+
+# 임시 파일
+tmp/
+temp/
+
+# 빌드 결과물 (생성될 파일이므로 제외하지 않음)
+# nginx.conf 
