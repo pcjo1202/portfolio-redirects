@@ -50,10 +50,10 @@ jobs:
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository }}/nginx-redirect:${{ github.sha }}"
           LATEST_IMAGE="ghcr.io/${{ github.repository }}/nginx-redirect:latest"
-          docker build -t $IMAGE_NAME .
-          docker tag $IMAGE_NAME $LATEST_IMAGE
-          docker push $IMAGE_NAME
-          docker push $LATEST_IMAGE
+          sudo docker build -t $IMAGE_NAME .
+          sudo docker tag $IMAGE_NAME $LATEST_IMAGE
+          sudo docker push $IMAGE_NAME
+          sudo docker push $LATEST_IMAGE
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
       - name: 7. 서버 배포
@@ -64,15 +64,15 @@ jobs:
           key: ${{ secrets.ORACLE_SERVER_KEY }}
           script: |
             # 이전 컨테이너 정리
-            docker stop nginx-redirect || true
-            docker rm nginx-redirect || true
-            docker image prune -f
+            sudo docker stop nginx-redirect || true
+            sudo docker rm nginx-redirect || true
+            sudo docker image prune -f
 
             # 새 이미지 배포
-            docker pull ${{ env.IMAGE_NAME }}
-            docker run -d --name nginx-redirect -p 80:80 ${{ env.IMAGE_NAME }}
+            sudo docker pull ${{ env.IMAGE_NAME }}
+            sudo docker run -d --name nginx-redirect -p 80:80 ${{ env.IMAGE_NAME }}
 
             # 배포 확인
             sleep 3
-            docker ps | grep nginx-redirect
-            docker logs --tail 30 nginx-redirect || true
+            sudo docker ps | grep nginx-redirect
+            sudo docker logs --tail 30 nginx-redirect || true
