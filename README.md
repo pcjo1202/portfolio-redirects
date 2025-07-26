@@ -76,13 +76,79 @@ docker run -p 8080:80 redirect-links
   - `/IEUM/figma` → Figma 디자인으로 이동
   - `/SSACLE/presentation` → 발표자료로 이동
 
-## 🚀 자동 배포
+## 🚀 CI/CD 파이프라인
 
-GitHub에 코드를 푸시하면:
+### 자동 배포 트리거
 
-1. **nginx.conf 생성**: TypeScript로 설정 파일 자동 생성
-2. **Docker 빌드**: 최적화된 nginx 이미지 빌드
-3. **서버 배포**: Oracle 서버에 자동 배포
+- `main` 브랜치에 Push할 때
+- 수동 실행 (`workflow_dispatch`)
+
+### 배포 단계
+
+```mermaid
+graph LR
+    A[코드 Push] --> B[체크아웃]
+    B --> C[pnpm 설치]
+    C --> D[Node.js 설정]
+    D --> E[의존성 설치]
+    E --> F[nginx.conf 생성]
+    F --> G[GHCR 로그인]
+    G --> H[Docker 빌드]
+    H --> I[이미지 푸시]
+    I --> J[서버 배포]
+    J --> K[배포 확인]
+```
+
+#### 1️⃣ **빌드 단계**
+
+```yaml
+- name: 의존성 설치 및 nginx.conf 생성
+  run: |
+    pnpm install --frozen-lockfile
+    pnpm generate
+```
+
+#### 2️⃣ **이미지 빌드 & 푸시**
+
+```yaml
+- name: 이미지 빌드 및 푸시
+  run: |
+    IMAGE_NAME="ghcr.io/${{ github.repository }}/nginx-app:${{ github.sha }}"
+    docker build -t $IMAGE_NAME .
+    docker push $IMAGE_NAME
+```
+
+#### 3️⃣ **서버 배포**
+
+```yaml
+- name: 서버 배포
+  run: |
+    # 이전 컨테이너 정리
+    docker stop nginx-redirect || true
+    docker rm nginx-redirect || true
+
+    # 새 이미지 배포
+    docker pull ${{ env.IMAGE_NAME }}
+    docker run -d --name nginx-redirect -p 80:80 ${{ env.IMAGE_NAME }}
+```
+
+### 배포 환경 설정
+
+GitHub Repository Settings에서 다음 Secrets 설정 필요:
+
+```bash
+ORACLE_SERVER_IP       # 서버 IP 주소
+ORACLE_SERVER_USERNAME # 서버 사용자명
+ORACLE_SERVER_KEY      # SSH 개인키
+```
+
+### 배포 확인
+
+배포 후 자동으로 다음을 확인:
+
+- 컨테이너 실행 상태
+- nginx 서비스 동작 여부
+- 포트 바인딩 확인
 
 ## 🐳 Docker 사용
 
