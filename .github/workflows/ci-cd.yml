@@ -1,0 +1,74 @@
+name: 🚀 간단한 배포
+
+on:
+  push:
+    branches: main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 빌드 및 배포
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 2. pnpm 설치
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: 3. Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: 4. 의존성 설치 및 nginx.conf 생성
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm generate
+
+          if [ ! -f "nginx.conf" ]; then
+            echo "❌ nginx.conf 파일이 생성되지 않았습니다!"
+            exit 1
+          fi
+          echo "✅ nginx.conf 파일이 성공적으로 생성되었습니다."
+
+      - name: 6. GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 5. 이미지 빌드 및 푸쉬
+        run: |
+          IMAGE_NAME="ghcr.io/${{ github.repository }}/nginx-redirect:${{ github.sha }}"
+          LATEST_IMAGE="ghcr.io/${{ github.repository }}/nginx-redirect:latest"
+          docker build -t $IMAGE_NAME .
+          docker tag $IMAGE_NAME $LATEST_IMAGE
+          docker push $IMAGE_NAME
+          docker push $LATEST_IMAGE
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: 7. 서버 배포
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.ORACLE_SERVER_IP }}
+          username: ${{ secrets.ORACLE_SERVER_USERNAME }}
+          key: ${{ secrets.ORACLE_SERVER_KEY }}
+          script: |
+            # 이전 컨테이너 정리
+            docker stop nginx-redirect || true
+            docker rm nginx-redirect || true
+            docker image prune -f
+
+            # 새 이미지 배포
+            docker pull ${{ env.IMAGE_NAME }}
+            docker run -d --name nginx-redirect -p 80:80 ${{ env.IMAGE_NAME }}
+
+            # 배포 확인
+            sleep 3
+            docker ps | grep nginx-redirect
+            docker logs --tail 30 nginx-redirect || true
