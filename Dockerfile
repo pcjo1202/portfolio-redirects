@@ -27,10 +27,6 @@ RUN touch /var/log/nginx/access.log \
     && touch /var/log/nginx/error.log \
     && chmod 644 /var/log/nginx/*.log
 
-# 헬스체크 추가
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
-
 # 포트 노출
 EXPOSE 80
 
