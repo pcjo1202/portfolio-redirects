@@ -79,10 +79,7 @@ jobs:
 
             # 새 이미지 배포
             sudo docker pull ${{ env.IMAGE_NAME }}
-            sudo docker run -d 
-              --name nginx-redirect
-              --network nginx-proxy-manager_default
-              -p 8080:80 ${{ env.IMAGE_NAME }}
+            sudo docker run -d --name nginx-redirect --network nginx-proxy-manager_default -p 8080:80 ${{ env.IMAGE_NAME }}
 
             # 배포 확인
             sleep 3
