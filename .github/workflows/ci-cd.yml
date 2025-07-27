@@ -52,8 +52,8 @@ jobs:
 
       - name: 6. 이미지 빌드 및 푸쉬
         run: |
-          IMAGE_NAME="ghcr.io/${{ github.repository }}/nginx-redirect:${{ github.sha }}"
-          LATEST_IMAGE="ghcr.io/${{ github.repository }}/nginx-redirect:latest"
+          IMAGE_NAME="ghcr.io/${{ github.actor }}/${{ github.repository }}:${{ github.sha }}"
+          LATEST_IMAGE="ghcr.io/${{ github.actor }}/${{ github.repository }}:latest"
           sudo docker build -t $IMAGE_NAME .
           sudo docker tag $IMAGE_NAME $LATEST_IMAGE
           sudo docker push $IMAGE_NAME
