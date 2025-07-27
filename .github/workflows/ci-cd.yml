@@ -35,6 +35,10 @@ jobs:
           fi
           echo "✅ nginx.conf 파일이 성공적으로 생성되었습니다."
 
+      - name: 5.1 GHCR 로그아웃
+        run: |
+          sudo docker logout ghcr.io
+
       - name: 5. GHCR 로그인
         uses: docker/login-action@v3
         with:
