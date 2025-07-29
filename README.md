@@ -124,12 +124,12 @@ graph LR
 - name: 서버 배포
   run: |
     # 이전 컨테이너 정리
-    docker stop nginx-redirect || true
-    docker rm nginx-redirect || true
+    docker stop ${{ env.CONTAINER_NAME }} || true
+    docker rm ${{ env.CONTAINER_NAME }} || true
 
     # 새 이미지 배포
     docker pull ${{ env.IMAGE_NAME }}
-    docker run -d --name nginx-redirect -p 80:80 ${{ env.IMAGE_NAME }}
+    docker run -d --name ${{ env.CONTAINER_NAME }} --network ${{ env.NETWORK_NAME }} -p 8080:80 ${{ env.IMAGE_NAME }}
 ```
 
 ### 배포 환경 설정
@@ -157,7 +157,7 @@ ORACLE_SERVER_KEY      # SSH 개인키
 docker pull ghcr.io/{username}/redirect-link-script:latest
 
 # 컨테이너 실행
-docker run -d -p 80:80 ghcr.io/{username}/redirect-link-script:latest
+docker run -d -p 8080:80 ghcr.io/{username}/redirect-link-script:latest
 ```
 
 ## 💻 개발 가이드
