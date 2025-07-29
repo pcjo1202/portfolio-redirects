@@ -63,7 +63,9 @@ jobs:
 
       - name: 6.1 변수 설정
         run: |
-          echo "IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}" >> $GITHUB_ENV
+          echo "IMAGE_NAME=ghcr.io/${{ github.repository }}:latest" >> $GITHUB_ENV
+          echo "CONTAINER_NAME=nginx-redirect" >> $GITHUB_ENV
+          echo "NETWORK_NAME=nginx-proxy-manager_default" >> $GITHUB_ENV
 
       - name: 7. 서버 배포
         uses: appleboy/ssh-action@v1.2.2
@@ -72,16 +74,29 @@ jobs:
           username: ${{ secrets.ORACLE_SERVER_USERNAME }}
           key: ${{ secrets.ORACLE_SERVER_KEY }}
           script: |
+            set -e # 오류 발생 시 스크립트 종료
+
+            # GHCR 로그인
+            echo "✅ GHCR 로그인"
+            echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             # 이전 컨테이너 정리
-            sudo docker stop nginx-redirect || true
-            sudo docker rm nginx-redirect || true
+            echo "✅ 이전 컨테이너 정리"
+            sudo docker stop ${{ env.CONTAINER_NAME }} || true
+            sudo docker rm ${{ env.CONTAINER_NAME }} || true
             sudo docker image prune -f
 
             # 새 이미지 배포
+            echo "✅ 새 이미지 배포"
             sudo docker pull ${{ env.IMAGE_NAME }}
-            sudo docker run -d --name nginx-redirect --network nginx-proxy-manager_default -p 8080:80 ${{ env.IMAGE_NAME }}
+            sudo docker run -d --name ${{ env.CONTAINER_NAME }} --network ${{ env.NETWORK_NAME }} -p 8080:80 ${{ env.IMAGE_NAME }}
 
             # 배포 확인
+            echo "✅ 배포 확인"
             sleep 3
-            sudo docker ps | grep nginx-redirect
-            sudo docker logs --tail 30 nginx-redirect || true
+            sudo docker ps | grep ${{ env.CONTAINER_NAME }}
+            sudo docker logs --tail 30 ${{ env.CONTAINER_NAME }} || true
+
+            # 완료 후 GHCR 로그아웃
+            echo "✅ GHCR 로그아웃"
+            sudo docker logout ghcr.io
